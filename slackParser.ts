@@ -28,7 +28,7 @@ let combinedHtmlContent =
 
 const convertToHtml = (filePath: string) => {
   const outputFileName = path.basename(filePath, ".json") + ".html";
-  const outputDirPath = path.resolve(__dirname, "./converted/filenames");
+  const outputDirPath = path.resolve(__dirname, "./converted/");
   if (!fs.existsSync(outputDirPath)) {
     fs.mkdirSync(outputDirPath, { recursive: true });
   }
@@ -72,7 +72,7 @@ const main = () => {
 
   combinedHtmlContent += "</body></html>";
   const combinedOutputFilePath = path.join(
-    path.resolve(__dirname, "./converted/filenames"),
+    path.resolve(__dirname, "./converted/"),
     "combined.html"
   );
   writeToFile(combinedOutputFilePath, combinedHtmlContent);
