@@ -1,5 +1,5 @@
 # slack-converter-html
-A small ts-node script to convert a slack channel JSON export into HTML.
+A small ts-node script to convert a Slack channel JSON export into HTML. This script will convert the individual JSON files for each date and also combine all files into 1 bigger HTML.
 
 ## Usage
 `yarn install` to install dependencies
