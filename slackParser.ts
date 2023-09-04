@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
 
-// Define the interface for a message
 interface Message {
   text: string;
   ts: string;
@@ -10,29 +9,34 @@ interface Message {
   };
 }
 
-// Function to read and parse the JSON file
 const readAndParseJSONFile = (filePath: string): Message[] => {
   const rawData = fs.readFileSync(filePath, "utf-8");
   return JSON.parse(rawData);
 };
 
-// Function to convert Unix timestamp to AEST date-time
 const convertTimestamp = (timestamp: string): string => {
   const date = new Date(Number(timestamp) * 1000);
   return date.toLocaleString("en-AU", { timeZone: "Australia/Sydney" });
 };
 
-// Function to write to a file
 const writeToFile = (filename: string, content: string): void => {
   fs.writeFileSync(filename, content, "utf8");
 };
 
-let globalHtmlContent =
+let combinedHtmlContent =
   "<html><head><title>Combined Slack Messages</title></head><body>";
-const combineOutput = true; // Set this to true or false as needed
 
 const convertToHtml = (filePath: string) => {
-  let outputContent = "";
+  const outputFileName = path.basename(filePath, ".json") + ".html";
+  const outputDirPath = path.resolve(__dirname, "./converted/filenames");
+  if (!fs.existsSync(outputDirPath)) {
+    fs.mkdirSync(outputDirPath, { recursive: true });
+  }
+  const outputFilePath = path.join(outputDirPath, outputFileName);
+
+  let individualHtmlContent =
+    "<html><head><title>Slack Messages</title></head><body>";
+
   const messages = readAndParseJSONFile(filePath);
 
   messages.forEach((message) => {
@@ -41,29 +45,18 @@ const convertToHtml = (filePath: string) => {
     const timestamp = convertTimestamp(message.ts);
 
     if (text && realName && timestamp) {
-      outputContent += `<p><strong>Timestamp:</strong> ${timestamp}</p>`;
-      outputContent += `<p><strong>Message:</strong> ${text}</p>`;
-      outputContent += `<p><strong>Real Name:</strong> ${realName}</p>`;
-      outputContent += "<hr>";
+      const messageHtml =
+        `<p><strong>Timestamp:</strong> ${timestamp}</p>` +
+        `<p><strong>Message:</strong> ${text}</p>` +
+        `<p><strong>Real Name:</strong> ${realName}</p><hr>`;
+
+      individualHtmlContent += messageHtml;
+      combinedHtmlContent += messageHtml;
     }
   });
 
-  if (!combineOutput) {
-    const outputFileName = path.basename(filePath, ".json") + ".html";
-    const outputDirPath = path.resolve(__dirname, "./converted/filenames");
-    // Make sure the directory exists
-    if (!fs.existsSync(outputDirPath)) {
-      fs.mkdirSync(outputDirPath, { recursive: true });
-    }
-    const outputFilePath = path.join(outputDirPath, outputFileName);
-    outputContent =
-      "<html><head><title>Slack Messages</title></head><body>" +
-      outputContent +
-      "</body></html>";
-    writeToFile(outputFilePath, outputContent);
-  } else {
-    globalHtmlContent += outputContent;
-  }
+  individualHtmlContent += "</body></html>";
+  writeToFile(outputFilePath, individualHtmlContent);
 };
 
 const main = () => {
@@ -77,12 +70,12 @@ const main = () => {
     }
   });
 
-  if (combineOutput) {
-    globalHtmlContent += "</body></html>";
-    const outputDirPath = path.resolve(__dirname, "./converted/filenames");
-    const outputFilePath = path.join(outputDirPath, "combined.html");
-    writeToFile(outputFilePath, globalHtmlContent);
-  }
+  combinedHtmlContent += "</body></html>";
+  const combinedOutputFilePath = path.join(
+    path.resolve(__dirname, "./converted/filenames"),
+    "combined.html"
+  );
+  writeToFile(combinedOutputFilePath, combinedHtmlContent);
 };
 
 main();
