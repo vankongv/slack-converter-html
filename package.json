@@ -1,0 +1,14 @@
+{
+  "name": "exportslack",
+  "version": "1.0.0",
+  "description": "Export Slack data to text",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "vankong.v@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.5.9"
+  }
+}
